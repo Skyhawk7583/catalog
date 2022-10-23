@@ -1,0 +1,34 @@
+env: {}
+image:
+  pullPolicy: IfNotPresent
+  repository: tccr.io/truecharts/jelu
+  tag: latest@sha256:e16c742152b35b61119768f6e955173ee3f4fbd1174df505a526976890820c30
+persistence:
+  config:
+    enabled: true
+    mountPath: /config
+  databasepath:
+    enabled: true
+    mountPath: /database
+  imagespath:
+    enabled: true
+    mountPath: /files/images
+  importspath:
+    enabled: true
+    mountPath: /files/imports
+podSecurityContext:
+  runAsGroup: 0
+  runAsUser: 0
+securityContext:
+  readOnlyRootFilesystem: false
+  runAsNonRoot: false
+service:
+  main:
+    ports:
+      main:
+        port: 11111
+        protocol: TCP
+        targetPort: 11111
+
+portal:
+  enabled: true

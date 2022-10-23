@@ -1,0 +1,95 @@
+image:
+  repository: tailscale/tailscale
+  pullPolicy: IfNotPresent
+  tag: v1.33.61@sha256:97d440aa0b0daf1187b32a7660663de204a1de0308f61fd3aaff515c18ed8d51
+
+command: ["ash", "/tailscale/run.sh"]
+
+tty: true
+
+securityContext:
+  readOnlyRootFilesystem: false
+  runAsNonRoot: false
+  capabilities:
+    add:
+      - NET_ADMIN
+
+podSecurityContext:
+  runAsUser: 0
+  runAsGroup: 0
+
+serviceAccount:
+  main:
+    enabled: true
+
+rbac:
+  main:
+    enabled: true
+    rules:
+      - apiGroups:
+          - ""
+        resources:
+          - "secrets"
+        verbs:
+          - "create"
+      - apiGroups:
+          - ""
+        resources:
+          - "secrets"
+        resourceNames:
+          - '{{ printf "%s-tailscale-secret" (include "tc.common.names.fullname" .) }}'
+        verbs:
+          - "get"
+          - "update"
+
+envFrom:
+  - secretRef:
+      name: '{{ include "tc.common.names.fullname" . }}-tailscale-secret'
+  - configMapRef:
+      name: '{{ include "tc.common.names.fullname" . }}-tailscale-config'
+
+tailscale:
+  authkey: "supersecret"
+  userspace: true
+  accept_dns: false
+  routes: ""
+  dest_ip: ""
+  sock5_server: ""
+  extra_args: ""
+  daemon_extra_args: ""
+  hostname: ""
+  advertise_as_exit_node: false
+
+probes:
+  liveness:
+    enabled: false
+  readiness:
+    enabled: false
+  startup:
+    enabled: false
+
+hostNetwork: true
+
+service:
+  main:
+    enabled: false
+    ports:
+      main:
+        enabled: false
+
+persistence:
+  varrun:
+    enabled: false
+  config:
+    enabled: true
+    mountPath: "/var/lib"
+  tun:
+    enabled: true
+    type: hostPath
+    hostPath: /dev/net/tun
+    mountPath: /dev/net/tun
+    hostPathType: ""
+    readOnly: false
+
+portal:
+  enabled: false
